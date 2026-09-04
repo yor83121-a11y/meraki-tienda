@@ -32,4 +32,4 @@ IMPORTANTE PARA QUE SEA PÚBLICA
 Este archivo es la página web. Para que cualquier cliente pueda entrar con un enlace se necesita subirlo a un servicio de alojamiento web (hosting). Además, si quieres que los productos se administren desde cualquier teléfono/computadora y que todos los clientes vean los mismos cambios, hace falta una base de datos/administrador online.
 
 PAGOS
-Esta versión NO cobra con tarjeta automáticamente. El pedido se envía por WhatsApp para confirmar disponibilidad, entrega y pago.
+Esta versión NO cobra con tarjeta automáticamente. El pedido se envía por WhatsApp para confirmar disponibilidad, entrega y pago.. 
