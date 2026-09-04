@@ -1,0 +1,35 @@
+DISTRIBUIDORA MERAKI — TIENDA WEB COMPLETA
+
+Esta versión está pensada para mostrarse a clientes desde celular o computadora.
+
+INCLUYE
+• Página principal moderna
+• Catálogo
+• Categorías
+• Buscador
+• Ordenar por precio/nombre
+• Precios en colones costarricenses
+• Carrito de compras
+• Cantidades, total y vaciar carrito
+• Formulario de cliente
+• Pedido preparado para WhatsApp
+• Secciones Nosotros y Contacto
+• Diseño adaptable a celular
+
+ANTES DE PUBLICAR
+En index.html busca:
+const CONFIG={company:"Distribuidora Meraki",whatsapp:"50600000000"};
+
+Cambia 50600000000 por el WhatsApp real de la empresa, sin +, espacios ni guiones.
+
+PRODUCTOS
+Los productos de ejemplo están dentro de la variable "products". Se pueden cambiar nombres, precios, categorías, descripciones y emojis.
+
+IMÁGENES
+La versión actual usa imágenes tipo emoji para que funcione sin depender de servicios externos. Para una tienda real conviene reemplazarlas por las fotos reales de cada producto.
+
+IMPORTANTE PARA QUE SEA PÚBLICA
+Este archivo es la página web. Para que cualquier cliente pueda entrar con un enlace se necesita subirlo a un servicio de alojamiento web (hosting). Además, si quieres que los productos se administren desde cualquier teléfono/computadora y que todos los clientes vean los mismos cambios, hace falta una base de datos/administrador online.
+
+PAGOS
+Esta versión NO cobra con tarjeta automáticamente. El pedido se envía por WhatsApp para confirmar disponibilidad, entrega y pago.

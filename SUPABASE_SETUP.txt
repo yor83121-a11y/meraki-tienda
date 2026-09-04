@@ -1,0 +1,28 @@
+DISTRIBUIDORA MERAKI Y KA!WA — CONEXIÓN ONLINE
+
+La tienda usa este proyecto Supabase:
+https://jaurpiljsvugggpsgtg.supabase.co
+
+IMPORTANTE: NO compartas contraseñas de base de datos ni secret/service_role keys.
+
+La tabla public.products debe tener, como mínimo, estas columnas:
+id (integer/bigint, identidad/autoincremental), name (text), category (text), price (numeric), description (text), image_url (text), emoji (text).
+
+RLS: deja lectura pública y permite escribir solo a usuarios autenticados.
+En Supabase > SQL Editor, puedes ejecutar:
+
+create policy "products_select_public" on public.products for select to anon, authenticated using (true);
+create policy "products_insert_auth" on public.products for insert to authenticated with check (true);
+create policy "products_update_auth" on public.products for update to authenticated using (true) with check (true);
+create policy "products_delete_auth" on public.products for delete to authenticated using (true);
+
+Si ya existe una política equivalente, no la dupliques; conserva la que ya funciona.
+
+ADMIN:
+La tienda tiene un botón ⚙️. El administrador entra con un usuario creado en Supabase Authentication > Users. No hay contraseña de administrador escrita dentro del código.
+
+FOTOS:
+Esta versión guarda la foto como image_url. Para una primera puesta en marcha funciona con fotos pequeñas. Para un sistema de muchas fotos conviene pasar después a Supabase Storage.
+
+PWA:
+La tienda incluye manifest, icono y service worker para que el cliente pueda agregarla a la pantalla de inicio cuando el navegador ofrezca la opción.
