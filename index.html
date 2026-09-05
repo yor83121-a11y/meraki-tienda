@@ -19,7 +19,7 @@
 <section class="section admin" id="admin"><div class="container"><div class="adminbox"><div class="panel-head"><div><h2>⚙️ Administración</h2><div class="muted">Los cambios se guardan online para todos los clientes.</div></div><button class="close" onclick="logoutAdmin()">Salir</button></div><div id="adminStatus" class="status">Conectando...</div><form id="productForm"><input type="hidden" id="editId"><div class="formgrid"><div><label>Nombre *</label><input class="field" id="pName" required></div><div><label>Categoría</label><input class="field" id="pCategory" placeholder="Golosinas"></div><div><label>Precio ₡ *</label><input class="field" id="pPrice" type="number" min="0" required></div><div><label>Emoji (si no hay foto)</label><input class="field" id="pEmoji" placeholder="🍬"></div></div><label>Descripción</label><textarea class="field" id="pDescription" rows="3"></textarea><label>Foto del producto</label><input class="field" id="pImage" type="file" accept="image/*"><div class="admin-actions"><button class="btn save" type="submit">💾 Guardar producto</button><button class="btn" type="button" onclick="resetForm()">Nuevo / limpiar</button></div></form><div class="admin-list" id="adminList"></div></div></div></section>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const SUPABASE_URL='https://jaurpiljsvugggpsgtg.supabase.co';
+const SUPABASE_URL='https://jaurpiljsvuggggpsgtg.supabase.co';
 const SUPABASE_KEY='sb_publishable_RnrXmDPdVhjg-Vp7HDpFvg_9k_rf4CY';
 const WHATSAPP='50661498396';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
