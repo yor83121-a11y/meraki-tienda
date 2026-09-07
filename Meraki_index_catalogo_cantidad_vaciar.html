@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#7c3aed">
+<link rel="manifest" href="manifest.webmanifest?v=3">
+<link rel="icon" type="image/png" href="./icon-meraki.png?v=3">
+<link rel="apple-touch-icon" href="./icon-meraki.png?v=3">
+<title>Distribuidora Meraki y Ka!wa</title>
+
+<style>
+:root{
+  --p:#7c3aed;--p2:#ec4899;--dark:#17171f;--muted:#6b7280;
+  --bg:#f7f7fb;--card:#fff;--line:#e8e8ef;--ok:#16a34a;--danger:#dc2626;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--dark)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.container{width:min(1180px,92%);margin:auto}
+header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:1px solid var(--line)}
+.nav{min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.logo{font-size:21px;font-weight:900;color:var(--p)}
+.navlinks{display:flex;gap:18px}
+.navlinks a{color:#333;text-decoration:none;font-weight:700}
+.actions{display:flex;gap:8px}
+.iconbtn,.cartbtn{border:0;border-radius:12px;padding:10px 13px}
+.iconbtn{background:#f1efff}.cartbtn{background:var(--p);color:#fff;font-weight:800}
+.hero{background:linear-gradient(120deg,#6d28d9,#ec4899);color:#fff;padding:58px 0}
+.hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center}
+.hero h1{font-size:clamp(35px,6vw,62px);line-height:1.02;margin:12px 0 18px}
+.hero p{font-size:18px;line-height:1.55}
+.hero-card{background:#ffffff22;border:1px solid #ffffff44;border-radius:25px;padding:30px;text-align:center}
+.big{font-size:80px}
+.btn{border:0;border-radius:12px;padding:13px 18px;font-weight:800;text-decoration:none;display:inline-block}
+.white{background:#fff;color:#6d28d9}.dark{background:#17171f;color:#fff}
+section{padding:48px 0}section h2{font-size:30px;margin:0 0 8px}.muted{color:var(--muted)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:20px 0}
+.search{flex:1;min-width:220px}.field{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px;width:100%}
+.categories{display:flex;gap:8px;overflow:auto;padding:4px 0 8px}
+.cat{white-space:nowrap;border:1px solid var(--line);background:#fff;padding:9px 14px;border-radius:999px}
+.cat.active{background:var(--p);color:#fff;border-color:var(--p)}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:17px}
+.product{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+.photo{height:150px;background:linear-gradient(135deg,#f3e8ff,#fce7f3);display:flex;align-items:center;justify-content:center;font-size:60px;overflow:hidden;padding:8px}
+.photo img{width:100%;height:100%;object-fit:contain}
+.catalog-qty{display:flex;align-items:center;justify-content:center;gap:8px;margin:10px 0}
+.catalog-qty button{width:36px;height:36px;border:0;border-radius:9px;background:#eee;font-size:22px;font-weight:800;line-height:1}
+.catalog-qty input{width:58px;height:36px;text-align:center;border:1px solid var(--line);border-radius:9px;font-weight:800}
+.clear-cart{width:100%;border:0;background:#fee2e2;color:#b91c1c;border-radius:11px;padding:11px;font-weight:800;margin-top:8px}
+.product-body{padding:15px;display:flex;flex-direction:column;flex:1}
+.tag{font-size:11px;font-weight:800;color:var(--p);text-transform:uppercase}
+.product h3{margin:7px 0;font-size:18px}
+.desc{font-size:14px;color:var(--muted);min-height:40px}
+.price{font-size:20px;font-weight:900;margin:13px 0}
+.add{margin-top:auto;width:100%;border:0;background:var(--p);color:#fff;border-radius:11px;padding:11px;font-weight:800}
+.benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.benefit{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px}
+.contact{background:#18181b;color:#fff;border-radius:25px;padding:35px}.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:25px}
+footer{text-align:center;padding:25px;color:var(--muted)}
+
+.drawer,.modal{position:fixed;inset:0;background:#0008;z-index:100;display:none}
+.drawer.show,.modal.show{display:block}
+.panel{position:absolute;right:0;top:0;height:100%;width:min(450px,100%);background:#fff;padding:20px;overflow:auto}
+.panel-head{display:flex;justify-content:space-between;align-items:center}
+.closer{border:0;background:#eee;border-radius:9px;padding:8px}
+.cartitem{display:grid;grid-template-columns:55px 1fr auto;gap:9px;align-items:center;border-bottom:1px solid var(--line);padding:12px 0}
+.thumb{width:55px;height:55px;border-radius:10px;background:#f3e8ff;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:27px}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.qty{display:flex;gap:5px;align-items:center}.qty button{border:0;background:#eee;border-radius:7px;padding:4px 8px}
+.total{font-size:23px;font-weight:900;padding:18px 0}
+.checkout{width:100%;border:0;background:var(--ok);color:#fff;border-radius:12px;padding:13px;font-weight:900}
+
+.modalbox{background:#fff;border-radius:18px;width:min(980px,94%);max-height:92vh;overflow:auto;padding:22px;margin:4vh auto}
+.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.formgrid .full{grid-column:1/-1}
+.admin-actions{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.save{background:var(--ok);color:#fff}.danger{background:var(--danger);color:#fff}
+.admin-list{margin-top:20px;display:grid;gap:10px}.admin-row{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;display:grid;grid-template-columns:65px 1fr auto;gap:12px;align-items:center}
+.admin-row img{width:65px;height:65px;object-fit:cover;border-radius:10px}.admin-buttons{display:flex;gap:7px;flex-wrap:wrap}
+.hidden{display:none!important}
+
+/* Carga múltiple */
+.bulkbox{margin-top:25px;padding:20px;border:2px dashed #d8c9ff;border-radius:18px;background:#faf9ff}
+.bulkbox h3{margin-top:0}.bulk-help{color:var(--muted);font-size:14px;line-height:1.5}
+.bulk-files{display:grid;gap:12px;margin-top:15px}
+.bulk-item{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.bulk-top{display:flex;gap:12px;align-items:center}
+.bulk-preview{width:80px;height:80px;border-radius:10px;overflow:hidden;background:#f3e8ff;flex-shrink:0}
+.bulk-preview img{width:100%;height:100%;object-fit:cover}
+.bulk-fields{flex:1;display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px}
+.bulk-fields textarea{grid-column:1/-1;min-height:58px;resize:vertical}
+.bulk-status{font-size:12px;color:var(--muted);margin-top:7px}
+.bulk-save{margin-top:15px;width:100%;background:var(--ok);color:#fff}
+.progress{display:none;margin-top:12px;padding:12px;border-radius:10px;background:#ecfdf5;color:#166534;font-weight:700}
+.progress.show{display:block}
+
+@media(max-width:900px){
+ .grid{grid-template-columns:repeat(2,1fr)}.photo{height:125px}.catalog-qty{margin:8px 0}.catalog-qty button{width:34px;height:34px}.catalog-qty input{width:54px;height:34px}.hero-grid,.contact-grid{grid-template-columns:1fr}
+ .benefits{grid-template-columns:1fr}.navlinks{display:none}
+}
+@media(max-width:560px){
+ .grid{grid-template-columns:1fr}.formgrid{grid-template-columns:1fr}
+ .bulk-fields{grid-template-columns:1fr}.bulk-top{align-items:flex-start}
+ .photo{height:150px}
+}
+</style>
+</head>
+
+<body>
+<header>
+ <div class="container nav">
+  <div class="logo">Distribuidora Meraki y Ka!wa</div>
+  <nav class="navlinks"><a href="#catalogo">Catálogo</a><a href="#nosotros">Nosotros</a><a href="#contacto">Contacto</a></nav>
+  <div class="actions">
+   <button class="iconbtn" onclick="openLogin()">⚙️</button>
+   <button class="cartbtn" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
+  </div>
+ </div>
+</header>
+
+<main>
+<section class="hero">
+ <div class="container hero-grid">
+  <div>
+   <p>Tu tienda de confianza</p>
+   <h1>Golosinas, snacks y productos para compartir.</h1>
+   <p>Precios en colones y pedidos directamente por WhatsApp.</p>
+   <a class="btn white" href="#catalogo">Ver catálogo</a>
+   <a class="btn dark" id="heroWhats" target="_blank" rel="noopener">WhatsApp</a>
+  </div>
+  <div class="hero-card"><div class="big">🍬🛍️</div><b>Distribuidora Meraki y Ka!wa</b><p>Golosinas • Confites • Snacks • Bebidas • Repostería • Sublimación y más</p></div>
+ </div>
+</section>
+
+<section id="catalogo">
+ <div class="container">
+  <h2>Catálogo</h2><p class="muted">Busca productos, filtra por categoría y agrégalos al carrito.</p>
+  <div class="toolbar">
+   <input id="search" class="field search" placeholder="🔎 Buscar producto..." oninput="renderProducts()">
+   <select id="sort" class="field" style="max-width:220px" onchange="renderProducts()">
+    <option value="default">Ordenar</option><option value="low">Precio menor</option><option value="high">Precio mayor</option><option value="name">Nombre A-Z</option>
+   </select>
+  </div>
+  <div id="categories" class="categories"></div>
+  <div id="products" class="grid"><p class="muted">Cargando productos...</p></div>
+ </div>
+</section>
+
+<section id="nosotros">
+ <div class="container">
+  <h2>¿Por qué comprar aquí?</h2>
+  <div class="benefits">
+   <div class="benefit"><b>🛒 Catálogo online</b><p class="muted">Consulta productos y precios actualizados.</p></div>
+   <div class="benefit"><b>📦 Cantidades y total</b><p class="muted">Arma tu pedido desde el carrito.</p></div>
+   <div class="benefit"><b>💬 WhatsApp</b><p class="muted">Envía el pedido directamente por WhatsApp.</p></div>
+  </div>
+ </div>
+</section>
+
+<section id="contacto">
+ <div class="container contact">
+  <h2>Contacto</h2>
+  <div class="contact-grid">
+   <div><p>📱 WhatsApp: <b>6149-8396</b></p><p>🇨🇷 Costa Rica</p><p>🕐 Lunes a sábado, 8:00 a.m. - 6:00 p.m.</p></div>
+   <div><p>¿Necesitas consultar disponibilidad, precios por cantidad o productos personalizados?</p><a class="btn white" id="contactWhats" target="_blank" rel="noopener">Escribir por WhatsApp</a></div>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer>© <span id="year"></span> Distribuidora Meraki y Ka!wa · Costa Rica</footer>
+
+<!-- Carrito -->
+<div id="cartDrawer" class="drawer" onclick="closeCart(event)">
+ <aside class="panel" onclick="event.stopPropagation()">
+  <div class="panel-head"><h2>🛒 Mi carrito</h2><button class="closer" onclick="closeCart()">✕</button></div>
+  <div id="cartItems"></div>
+  <div class="total">Total: <span id="cartTotal">₡0</span></div>
+  <button class="clear-cart" onclick="clearCart()">🗑️ Vaciar carrito</button>
+  <button class="checkout" onclick="openCustomer()">Enviar pedido por WhatsApp</button>
+ </aside>
+</div>
+
+<!-- Datos del pedido -->
+<div id="customerModal" class="modal">
+ <div class="modalbox">
+  <div class="panel-head"><h2>Datos del pedido</h2><button class="closer" onclick="closeCustomer()">✕</button></div>
+  <div class="formgrid">
+   <div><label>Nombre *</label><input id="custName" class="field"></div>
+   <div><label>Teléfono *</label><input id="custPhone" class="field"></div>
+   <div class="full"><label>Dirección / lugar de entrega</label><textarea id="custAddress" class="field" rows="3"></textarea></div>
+  </div>
+  <button class="checkout" style="margin-top:15px" onclick="sendOrder()">Abrir WhatsApp con mi pedido</button>
+ </div>
+</div>
+
+<!-- Login -->
+<div id="loginModal" class="modal">
+ <div class="modalbox" style="max-width:480px">
+  <div class="panel-head"><h2>Administración</h2><button class="closer" onclick="closeLogin()">✕</button></div>
+  <p class="muted">Solo el administrador puede modificar productos.</p>
+  <input id="loginEmail" class="field" placeholder="Correo">
+  <input id="loginPassword" class="field" type="password" placeholder="Contraseña" style="margin-top:10px">
+  <button class="btn dark" style="margin-top:12px" onclick="login()">Entrar</button>
+  <p id="loginMsg" class="muted"></p>
+ </div>
+</div>
+
+<!-- Administración -->
+<div id="adminModal" class="modal">
+ <div class="modalbox">
+  <div class="panel-head"><h2>⚙️ Administración de productos</h2><button class="closer" onclick="closeAdmin()">✕</button></div>
+
+  <h3>Agregar / editar un producto</h3>
+  <form id="productForm">
+   <input type="hidden" id="editId">
+   <div class="formgrid">
+    <div><label>Nombre *</label><input class="field" id="pName" required></div>
+    <div><label>Categoría</label><input class="field" id="pCategory" placeholder="Golosinas"></div>
+    <div><label>Precio ₡ *</label><input class="field" id="pPrice" type="number" min="0" required></div>
+    <div><label>Emoji si no hay foto</label><input class="field" id="pEmoji" placeholder="🍬"></div>
+    <div class="full"><label>Descripción</label><textarea class="field" id="pDescription" rows="3"></textarea></div>
+    <div class="full"><label>Foto del producto</label><input class="field" id="pImage" type="file" accept="image/*"></div>
+   </div>
+   <div class="admin-actions"><button class="btn save" type="submit">💾 Guardar producto</button><button class="btn" type="button" onclick="resetForm()">Nuevo / limpiar</button></div>
+  </form>
+
+  <div class="bulkbox">
+   <h3>📸 Agregar muchos productos de una vez</h3>
+   <p class="bulk-help">Selecciona varias fotos desde tu teléfono. Para cada foto aparecerá un formulario para poner nombre, categoría, precio y descripción. Después pulsa <b>Guardar todos los productos</b>.</p>
+   <input id="bulkImages" class="field" type="file" accept="image/*" multiple onchange="prepareBulkProducts()">
+   <div id="bulkFiles" class="bulk-files"></div>
+   <div id="bulkProgress" class="progress"></div>
+   <button id="bulkSaveBtn" class="btn bulk-save hidden" onclick="saveBulkProducts()">📦 Guardar todos los productos</button>
+  </div>
+
+  <h3 style="margin-top:28px">Productos actuales</h3>
+  <div id="adminList" class="admin-list"></div>
+ </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://jaurpiljsvuggggpsgtg.supabase.co';
+const SUPABASE_KEY='sb_publishable_RnrXmDPdVhjg-Vp7HDpFvg_9k_rf4CY';
+const WHATSAPP='50661498396';
+const ADMIN_EMAIL='yor83121@gmail.com';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+let products=[];
+let cart=[];
+let activeCategory='Todas';
+let bulkFiles=[];
+
+const money=n=>new Intl.NumberFormat('es-CR',{style:'currency',currency:'CRC',maximumFractionDigits:0}).format(Number(n)||0);
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const productCategory=p=>p.category??p.cat??'General';
+const productDescription=p=>p.description??p.desc??'';
+const productImage=p=>p.image_url??p.image??'';
+const productEmoji=p=>p.emoji??'🛍️';
+const wa=()=>`https://wa.me/${WHATSAPP}`;
+
+document.getElementById('heroWhats').href=wa();
+document.getElementById('contactWhats').href=wa();
+document.getElementById('year').textContent=new Date().getFullYear();
+
+function normalizeCategory(v){return String(v??'').trim().toLowerCase().replace(/\s+/g,' ')}
+
+function renderCategories(){
+ const map=new Map();
+ products.forEach(p=>{
+  const original=String(productCategory(p)||'General').trim();
+  if(original&&!map.has(normalizeCategory(original)))map.set(normalizeCategory(original),original);
+ });
+ const el=document.getElementById('categories');
+ el.innerHTML='';
+ const all=document.createElement('button');
+ all.className='cat '+(activeCategory==='Todas'?'active':'');
+ all.textContent='Todas';
+ all.onclick=()=>{activeCategory='Todas';renderCategories();renderProducts()};
+ el.appendChild(all);
+ map.forEach((original,key)=>{
+  const b=document.createElement('button');
+  b.className='cat '+(normalizeCategory(activeCategory)===key?'active':'');
+  b.textContent=original;
+  b.onclick=()=>{activeCategory=original;renderCategories();renderProducts()};
+  el.appendChild(b);
+ });
+}
+
+function renderProducts(){
+ const search=(document.getElementById('search').value||'').trim().toLowerCase();
+ let list=products.filter(p=>{
+  const text=`${p.name||''} ${productCategory(p)} ${productDescription(p)}`.toLowerCase();
+  const cat=activeCategory==='Todas'||normalizeCategory(productCategory(p))===normalizeCategory(activeCategory);
+  return cat&&text.includes(search);
+ });
+ const sort=document.getElementById('sort').value;
+ if(sort==='low')list.sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
+ if(sort==='high')list.sort((a,b)=>(Number(b.price)||0)-(Number(a.price)||0));
+ if(sort==='name')list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+ const el=document.getElementById('products');
+ if(!list.length){el.innerHTML='<p class="muted">No hay productos para mostrar.</p>';return}
+ el.innerHTML=list.map(p=>{
+  const img=productImage(p);
+  return `<article class="product">
+   <div class="photo">${img?`<img src="${esc(img)}" alt="${esc(p.name)}">`:esc(productEmoji(p))}</div>
+   <div class="product-body">
+    <div class="tag">${esc(productCategory(p))}</div>
+    <h3>${esc(p.name||'Sin nombre')}</h3>
+    <div class="desc">${esc(productDescription(p))}</div>
+    <div class="price">${money(p.price)}</div>
+    <div class="catalog-qty">
+      <button type="button" onclick="adjustCatalogQty(${Number(p.id)},-1)">−</button>
+      <input id="catalog-qty-${Number(p.id)}" type="number" min="1" value="1" inputmode="numeric" aria-label="Cantidad de ${esc(p.name||'producto')}">
+      <button type="button" onclick="adjustCatalogQty(${Number(p.id)},1)">+</button>
+    </div>
+    <button class="add" onclick="addCatalogProduct(${Number(p.id)})">Agregar al carrito</button>
+   </div>
+  </article>`;
+ }).join('');
+}
+
+function getCatalogQty(id){
+ const input=document.getElementById(`catalog-qty-${Number(id)}`);
+ return Math.max(1,Number(input?.value||1));
+}
+function adjustCatalogQty(id,d){
+ const input=document.getElementById(`catalog-qty-${Number(id)}`);if(!input)return;
+ input.value=Math.max(1,Number(input.value||1)+d);
+}
+function addCatalogProduct(id){
+ const qty=getCatalogQty(id);
+ const p=products.find(x=>Number(x.id)===Number(id));if(!p)return;
+ const item=cart.find(x=>Number(x.id)===Number(id));
+ if(item)item.qty+=qty;else cart.push({id:p.id,qty});
+ renderCart();
+}
+function clearCart(){
+ if(!cart.length)return;
+ if(confirm('¿Quieres vaciar todo el carrito?')){cart=[];renderCart();}
+}
+function renderCart(){
+ document.getElementById('cartCount').textContent=cart.reduce((s,x)=>s+x.qty,0);
+ const el=document.getElementById('cartItems');
+ if(!cart.length){el.innerHTML='<p class="muted">Tu carrito está vacío.</p>';document.getElementById('cartTotal').textContent='₡0';return}
+ let total=0;
+ el.innerHTML=cart.map(item=>{
+  const p=products.find(x=>Number(x.id)===Number(item.id));if(!p)return '';
+  total+=(Number(p.price)||0)*item.qty;
+  const img=productImage(p);
+  return `<div class="cartitem">
+   <div class="thumb">${img?`<img src="${esc(img)}" alt="">`:esc(productEmoji(p))}</div>
+   <div><b>${esc(p.name)}</b><div class="muted">${money(p.price)} c/u</div><div class="muted">Cantidad: <b>${item.qty}</b></div></div>
+  </div>`;
+ }).join('');
+ document.getElementById('cartTotal').textContent=money(total);
+}
+function openCart(){document.getElementById('cartDrawer').classList.add('show');renderCart()}
+function closeCart(e){if(!e||e.target.id==='cartDrawer')document.getElementById('cartDrawer').classList.remove('show')}
+
+function openCustomer(){
+ if(!cart.length)return alert('El carrito está vacío.');
+ document.getElementById('customerModal').classList.add('show');
+}
+function closeCustomer(){document.getElementById('customerModal').classList.remove('show')}
+function sendOrder(){
+ const name=document.getElementById('custName').value.trim();
+ const phone=document.getElementById('custPhone').value.trim();
+ const address=document.getElementById('custAddress').value.trim();
+ if(!name||!phone)return alert('Completa nombre y teléfono.');
+ let total=0,lines=[];
+ cart.forEach(item=>{
+  const p=products.find(x=>Number(x.id)===Number(item.id));if(!p)return;
+  const sub=(Number(p.price)||0)*item.qty;total+=sub;
+  lines.push(`• ${item.qty} x ${p.name} — ${money(sub)}`);
+ });
+ const text=`Hola, quiero hacer este pedido en Distribuidora Meraki y Ka!wa.%0A%0A👤 Nombre: ${encodeURIComponent(name)}%0A📱 Teléfono: ${encodeURIComponent(phone)}%0A📍 Lugar: ${encodeURIComponent(address||'Por confirmar')}%0A%0A${encodeURIComponent(lines.join('\n'))}%0A%0A💰 Total estimado: ${encodeURIComponent(money(total))}`;
+ window.open(`${wa()}?text=${text}`,'_blank');
+}
+
+function openLogin(){document.getElementById('loginModal').classList.add('show')}
+function closeLogin(){document.getElementById('loginModal').classList.remove('show')}
+async function login(){
+ const email=document.getElementById('loginEmail').value.trim();
+ const password=document.getElementById('loginPassword').value;
+ const msg=document.getElementById('loginMsg');
+ msg.textContent='Entrando...';
+ const {error}=await sb.auth.signInWithPassword({email,password});
+ if(error){msg.textContent='❌ '+error.message;return}
+ closeLogin();openAdmin();
+}
+async function openAdmin(){
+ const {data}=await sb.auth.getSession();
+ if(!data.session){openLogin();return}
+ if((data.session.user.email||'').toLowerCase()!==ADMIN_EMAIL.toLowerCase()){
+  await sb.auth.signOut();return alert('Este usuario no es el administrador.');
+ }
+ document.getElementById('adminModal').classList.add('show');
+ renderAdminList();
+}
+function closeAdmin(){document.getElementById('adminModal').classList.remove('show')}
+
+function resetForm(){
+ document.getElementById('productForm').reset();
+ document.getElementById('editId').value='';
+}
+document.getElementById('productForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const id=document.getElementById('editId').value;
+ const name=document.getElementById('pName').value.trim();
+ const category=document.getElementById('pCategory').value.trim()||'General';
+ const price=Number(document.getElementById('pPrice').value);
+ const description=document.getElementById('pDescription').value.trim();
+ const emoji=document.getElementById('pEmoji').value.trim()||'🛍️';
+ let image_url='';
+ const file=document.getElementById('pImage').files[0];
+ if(file)image_url=await fileToDataURL(file);
+ if(!name)return alert('Escribe el nombre.');
+ if(id){
+  const old=products.find(p=>String(p.id)===String(id));
+  if(!image_url)image_url=productImage(old);
+  const {error}=await sb.from('products').update({name,category,price,description,emoji,image_url}).eq('id',id);
+  if(error)return alert('Error al actualizar: '+error.message);
+ }else{
+  const {error}=await sb.from('products').insert({name,category,price,description,emoji,image_url});
+  if(error)return alert('Error al crear: '+error.message);
+ }
+ resetForm();await loadProducts();renderAdminList();alert('Producto guardado online.');
+});
+
+function editProduct(id){
+ const p=products.find(x=>Number(x.id)===Number(id));if(!p)return;
+ document.getElementById('editId').value=p.id;
+ document.getElementById('pName').value=p.name||'';
+ document.getElementById('pCategory').value=productCategory(p);
+ document.getElementById('pPrice').value=p.price||0;
+ document.getElementById('pEmoji').value=productEmoji(p);
+ document.getElementById('pDescription').value=productDescription(p);
+ document.getElementById('pImage').value='';
+ document.getElementById('productForm').scrollIntoView({behavior:'smooth'});
+}
+async function deleteProduct(id){
+ if(!confirm('¿Borrar este producto?'))return;
+ const {error}=await sb.from('products').delete().eq('id',id);
+ if(error)return alert('Error al borrar: '+error.message);
+ await loadProducts();renderAdminList();
+}
+function renderAdminList(){
+ const el=document.getElementById('adminList');
+ if(!products.length){el.innerHTML='<p class="muted">No hay productos.</p>';return}
+ el.innerHTML=products.map(p=>{
+  const img=productImage(p);
+  return `<div class="admin-row">
+   ${img?`<img src="${esc(img)}" alt="">`:`<div class="thumb">${esc(productEmoji(p))}</div>`}
+   <div><b>${esc(p.name)}</b><div class="muted">${esc(productCategory(p))} · ${money(p.price)}</div></div>
+   <div class="admin-buttons"><button class="btn" onclick="editProduct(${Number(p.id)})">✏️ Editar</button><button class="btn danger" onclick="deleteProduct(${Number(p.id)})">🗑️ Borrar</button></div>
+  </div>`;
+ }).join('');
+}
+
+/* Compresión de fotos para no guardar archivos gigantes */
+function compressImage(file){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const img=new Image();
+   img.onload=()=>{
+    const MAX_SIZE=1200;
+    let w=img.width,h=img.height;
+    if(w>MAX_SIZE||h>MAX_SIZE){
+     if(w>h){h=Math.round(h*MAX_SIZE/w);w=MAX_SIZE}
+     else{w=Math.round(w*MAX_SIZE/h);h=MAX_SIZE}
+    }
+    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+    canvas.toBlob(blob=>{
+     if(!blob)return reject(new Error('No se pudo comprimir la imagen.'));
+     const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=reject;r.readAsDataURL(blob);
+    },'image/jpeg',0.72);
+   };
+   img.onerror=()=>reject(new Error('No se pudo leer la imagen.'));
+   img.src=reader.result;
+  };
+  reader.onerror=reject;reader.readAsDataURL(file);
+ });
+}
+const fileToDataURL=compressImage;
+
+/* =========================
+   CARGA MÚLTIPLE
+========================= */
+function prepareBulkProducts(){
+ const input=document.getElementById('bulkImages');
+ const container=document.getElementById('bulkFiles');
+ const saveBtn=document.getElementById('bulkSaveBtn');
+ bulkFiles=Array.from(input.files||[]);
+ container.innerHTML='';
+ if(!bulkFiles.length){saveBtn.classList.add('hidden');return}
+ bulkFiles.forEach((file,index)=>{
+  const item=document.createElement('div');
+  item.className='bulk-item';
+  item.innerHTML=`
+   <div class="bulk-top">
+    <div class="bulk-preview"><img id="bulk-preview-${index}" alt=""></div>
+    <div class="bulk-fields">
+     <input class="field" data-index="${index}" data-field="name" placeholder="Nombre del producto *">
+     <input class="field" data-index="${index}" data-field="category" value="General" placeholder="Categoría">
+     <input class="field" data-index="${index}" data-field="price" type="number" min="0" placeholder="Precio ₡">
+     <textarea class="field" data-index="${index}" data-field="description" placeholder="Descripción"></textarea>
+    </div>
+   </div>
+   <div class="bulk-status" id="bulk-status-${index}">${esc(file.name)} · Listo para guardar</div>`;
+  container.appendChild(item);
+  const reader=new FileReader();
+  reader.onload=()=>{document.getElementById(`bulk-preview-${index}`).src=reader.result};
+  reader.readAsDataURL(file);
+ });
+ saveBtn.classList.remove('hidden');
+ document.getElementById('bulkProgress').classList.remove('show');
+}
+
+async function saveBulkProducts(){
+ if(!bulkFiles.length)return alert('Primero selecciona varias fotos.');
+ const saveBtn=document.getElementById('bulkSaveBtn');
+ const progress=document.getElementById('bulkProgress');
+ saveBtn.disabled=true;
+ let saved=0,failed=0;
+ progress.classList.add('show');
+ progress.textContent='Preparando productos...';
+ for(let i=0;i<bulkFiles.length;i++){
+  const status=document.getElementById(`bulk-status-${i}`);
+  try{
+   const get=(field)=>document.querySelector(`[data-index="${i}"][data-field="${field}"]`)?.value?.trim()||'';
+   const name=get('name');
+   const category=get('category')||'General';
+   const price=Number(get('price')||0);
+   const description=get('description');
+   if(!name||price<0)throw new Error('Falta nombre o precio.');
+   status.textContent='⏳ Guardando...';
+   const image_url=await compressImage(bulkFiles[i]);
+   const {error}=await sb.from('products').insert({
+    name,category,price,description,emoji:'🛍️',image_url
+   });
+   if(error)throw error;
+   saved++;status.textContent='✅ Guardado correctamente';
+  }catch(error){
+   failed++;status.textContent='❌ Error: '+(error.message||'Error desconocido');
+  }
+  progress.textContent=`Procesando ${i+1} de ${bulkFiles.length}... Guardados: ${saved}`;
+ }
+ await loadProducts();renderAdminList();
+ progress.textContent=`Proceso terminado: ${saved} guardados${failed?` y ${failed} con error`:'.'}`;
+ saveBtn.disabled=false;
+ if(saved>0)alert(`${saved} producto(s) guardado(s) correctamente${failed?`.\n${failed} no se pudieron guardar.`:'.'}`);
+ if(saved===bulkFiles.length){
+  document.getElementById('bulkImages').value='';
+  document.getElementById('bulkFiles').innerHTML='';
+  bulkFiles=[];
+  saveBtn.classList.add('hidden');
+ }
+}
+
+/* =========================
+   CARGAR PRODUCTOS
+========================= */
+async function loadProducts(){
+ const {data,error}=await sb.from('products').select('*').order('id',{ascending:true});
+ if(error){
+  console.error(error);
+  document.getElementById('products').innerHTML='<p class="muted">No se pudieron cargar los productos. Intenta actualizar la página.</p>';
+  return;
+ }
+ products=data||[];
+ renderCategories();renderProducts();renderCart();
+ if(document.getElementById('adminModal').classList.contains('show'))renderAdminList();
+}
+
+loadProducts();
+
+if('serviceWorker' in navigator){
+ navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
