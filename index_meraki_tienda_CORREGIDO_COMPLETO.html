@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#7c3aed">
-<link rel="manifest" href="manifest.webmanifest?v=4">
-<link rel="icon" type="image/png" href="./icon-meraki.png?v=4">
-<link rel="apple-touch-icon" href="./icon-meraki.png?v=4">
+<link rel="manifest" href="manifest.webmanifest?v=5">
+<link rel="icon" type="image/png" href="./icon-meraki.png?v=5">
+<link rel="apple-touch-icon" href="./icon-meraki.png?v=5">
 <title>Distribuidora Meraki y Ka!wa</title>
 <style>
 :root{--p:#7c3aed;--p2:#ec4899;--dark:#27364a;--muted:#6b7280;--bg:#f4f5f7;--card:#fff;--line:#e3e5e8;--ok:#16a34a;--danger:#dc2626;--cta:#f58a19}
@@ -103,7 +103,7 @@ section{padding:48px 0}section h2{font-size:30px;margin:0 0 8px}.muted{color:var
 <div class="full"><label>Descripción</label><textarea class="field" id="pDescription" rows="3"></textarea></div><div class="full"><label>Foto del producto</label><input class="field" id="pImage" type="file" accept="image/*"></div>
 </div><div class="admin-actions"><button class="btn save" type="submit">💾 Guardar producto</button><button class="btn" type="button" onclick="resetForm()">Nuevo / limpiar</button></div></form>
 
-<div class="bulkbox"><h3>📸 Agregar muchos productos de una vez</h3><p class="bulk-help">Selecciona varias fotos desde tu teléfono. Para cada foto aparecerá un formulario para poner nombre, categoría, precio y descripción. Después pulsa <b>Guardar todos los productos</b>.</p>
+<div class="bulkbox"><h3>📸 Agregar muchos productos de una vez</h3><p class="bulk-help">Selecciona varias fotos desde tu teléfono. La aplicación las procesa <b>una por una</b> para evitar el error que aparece al seleccionar muchas imágenes. Para cada foto pon nombre, categoría y precio, y luego pulsa <b>Guardar todos los productos</b>.</p>
 <input id="bulkImages" class="field" type="file" accept="image/*" multiple onchange="prepareBulkProducts()"><div id="bulkFiles" class="bulk-files"></div><div id="bulkProgress" class="progress"></div>
 <button id="bulkSaveBtn" class="btn bulk-save hidden" onclick="saveBulkProducts()">📦 Guardar todos los productos</button></div>
 
@@ -122,23 +122,39 @@ const WHATSAPP='50661498396';
 const ADMIN_EMAIL='yor83121@gmail.com';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let products=[],cart=[],activeCategory='Todas',bulkFiles=[];
+
 const money=n=>new Intl.NumberFormat('es-CR',{style:'currency',currency:'CRC',maximumFractionDigits:0}).format(Number(n)||0);
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const productCategory=p=>p.category??p.cat??'General',productDescription=p=>p.description??p.desc??'',productImage=p=>p.image_url??p.image??'',productEmoji=p=>p.emoji??'🛍️';
+const productCategory=p=>p.category??p.cat??'General';
+const productDescription=p=>p.description??p.desc??'';
+const productImage=p=>p.image_url??p.image??'';
+const productEmoji=p=>p.emoji??'🛍️';
 const wa=()=>`https://wa.me/${WHATSAPP}`;
-document.getElementById('heroWhats').href=wa();document.getElementById('contactWhats').href=wa();document.getElementById('year').textContent=new Date().getFullYear();
+
+document.getElementById('heroWhats').href=wa();
+document.getElementById('contactWhats').href=wa();
+document.getElementById('year').textContent=new Date().getFullYear();
 
 function normalizeCategory(v){return String(v??'').trim().toLowerCase().replace(/\s+/g,' ')}
+
 function renderCategories(){
- const map=new Map();products.forEach(p=>{const original=String(productCategory(p)||'General').trim();if(original&&!map.has(normalizeCategory(original)))map.set(normalizeCategory(original),original)});
- const el=document.getElementById('categories');el.innerHTML='';const all=document.createElement('button');all.className='cat '+(activeCategory==='Todas'?'active':'');all.textContent='Todas';all.onclick=()=>{activeCategory='Todas';renderCategories();renderProducts()};el.appendChild(all);
+ const map=new Map();
+ products.forEach(p=>{const original=String(productCategory(p)||'General').trim();if(original&&!map.has(normalizeCategory(original)))map.set(normalizeCategory(original),original)});
+ const el=document.getElementById('categories');el.innerHTML='';
+ const all=document.createElement('button');all.className='cat '+(activeCategory==='Todas'?'active':'');all.textContent='Todas';
+ all.onclick=()=>{activeCategory='Todas';renderCategories();renderProducts()};el.appendChild(all);
  map.forEach((original,key)=>{const b=document.createElement('button');b.className='cat '+(normalizeCategory(activeCategory)===key?'active':'');b.textContent=original;b.onclick=()=>{activeCategory=original;renderCategories();renderProducts()};el.appendChild(b)})
 }
+
 function renderProducts(){
  const search=(document.getElementById('search').value||'').trim().toLowerCase();
  let list=products.filter(p=>{const text=`${p.name||''} ${productCategory(p)} ${productDescription(p)}`.toLowerCase();const cat=activeCategory==='Todas'||normalizeCategory(productCategory(p))===normalizeCategory(activeCategory);return cat&&text.includes(search)});
- const sort=document.getElementById('sort').value;if(sort==='low')list.sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));if(sort==='high')list.sort((a,b)=>(Number(b.price)||0)-(Number(a.price)||0));if(sort==='name')list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
- const el=document.getElementById('products');if(!list.length){el.innerHTML='<p class="muted">No hay productos para mostrar.</p>';return}
+ const sort=document.getElementById('sort').value;
+ if(sort==='low')list.sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));
+ if(sort==='high')list.sort((a,b)=>(Number(b.price)||0)-(Number(a.price)||0));
+ if(sort==='name')list.sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'es'));
+ const el=document.getElementById('products');
+ if(!list.length){el.innerHTML='<p class="muted">No hay productos para mostrar.</p>';return}
  el.innerHTML=list.map(p=>{const img=productImage(p);return `<article class="product"><div class="photo">${img?`<img src="${esc(img)}" alt="${esc(p.name)}">`:esc(productEmoji(p))}</div><div class="product-body"><div class="tag">${esc(productCategory(p))}</div><h3>${esc(p.name||'Sin nombre')}</h3><div class="desc">${esc(productDescription(p))}</div><div class="price">${money(p.price)}</div><div class="catalog-qty"><button type="button" onclick="adjustCatalogQty(${Number(p.id)},-1)">−</button><input id="catalog-qty-${Number(p.id)}" type="number" min="1" value="1" inputmode="numeric" aria-label="Cantidad de ${esc(p.name||'producto')}"><button type="button" onclick="adjustCatalogQty(${Number(p.id)},1)">+</button></div><button class="add" onclick="addCatalogProduct(${Number(p.id)})">Agregar al carrito</button></div></article>`}).join('')
 }
 function getCatalogQty(id){const input=document.getElementById(`catalog-qty-${Number(id)}`);return Math.max(1,Number(input?.value||1))}
@@ -146,87 +162,147 @@ function adjustCatalogQty(id,d){const input=document.getElementById(`catalog-qty
 function addCatalogProduct(id){const qty=getCatalogQty(id),p=products.find(x=>Number(x.id)===Number(id));if(!p)return;const item=cart.find(x=>Number(x.id)===Number(id));if(item)item.qty+=qty;else cart.push({id:p.id,qty});renderCart()}
 function clearCart(){if(!cart.length)return;if(confirm('¿Quieres vaciar todo el carrito?')){cart=[];renderCart()}}
 function renderCart(){
- document.getElementById('cartCount').textContent=cart.reduce((s,x)=>s+x.qty,0);const el=document.getElementById('cartItems');
+ document.getElementById('cartCount').textContent=cart.reduce((s,x)=>s+x.qty,0);
+ const el=document.getElementById('cartItems');
  if(!cart.length){el.innerHTML='<p class="muted">Tu carrito está vacío.</p>';document.getElementById('cartTotal').textContent='₡0';return}
- let total=0;el.innerHTML=cart.map(item=>{const p=products.find(x=>Number(x.id)===Number(item.id));if(!p)return '';total+=(Number(p.price)||0)*item.qty;const img=productImage(p);return `<div class="cartitem"><div class="thumb">${img?`<img src="${esc(img)}" alt="">`:esc(productEmoji(p))}</div><div><b>${esc(p.name)}</b><div class="muted">${money(p.price)} c/u</div><div class="muted">Cantidad: <b>${item.qty}</b></div></div></div>`}).join('');
+ let total=0;
+ el.innerHTML=cart.map(item=>{const p=products.find(x=>Number(x.id)===Number(item.id));if(!p)return '';total+=(Number(p.price)||0)*item.qty;const img=productImage(p);return `<div class="cartitem"><div class="thumb">${img?`<img src="${esc(img)}" alt="">`:esc(productEmoji(p))}</div><div><b>${esc(p.name)}</b><div class="muted">${money(p.price)} c/u</div><div class="muted">Cantidad: <b>${item.qty}</b></div></div></div>`}).join('');
  document.getElementById('cartTotal').textContent=money(total)
 }
 function openCart(){document.getElementById('cartDrawer').classList.add('show');renderCart()}
 function closeCart(e){if(!e||e.target.id==='cartDrawer')document.getElementById('cartDrawer').classList.remove('show')}
 function openCustomer(){if(!cart.length)return alert('El carrito está vacío.');document.getElementById('customerModal').classList.add('show')}
 function closeCustomer(){document.getElementById('customerModal').classList.remove('show')}
+
 async function sendOrder(){
- const name=document.getElementById('custName').value.trim(),phone=document.getElementById('custPhone').value.trim(),address=document.getElementById('custAddress').value.trim();if(!name||!phone)return alert('Completa nombre y teléfono.');
- let total=0,lines=[],saleItems=[];cart.forEach(item=>{const p=products.find(x=>Number(x.id)===Number(item.id));if(!p)return;const price=Number(p.price)||0,sub=price*item.qty;total+=sub;lines.push(`• ${item.qty} x ${p.name} — ${money(sub)}`);saleItems.push({id:p.id,name:p.name,qty:item.qty,price,subtotal:sub})});
+ const name=document.getElementById('custName').value.trim(),phone=document.getElementById('custPhone').value.trim(),address=document.getElementById('custAddress').value.trim();
+ if(!name||!phone)return alert('Completa nombre y teléfono.');
+ let total=0,lines=[],saleItems=[];
+ cart.forEach(item=>{const p=products.find(x=>Number(x.id)===Number(item.id));if(!p)return;const price=Number(p.price)||0,sub=price*item.qty;total+=sub;lines.push(`• ${item.qty} x ${p.name} — ${money(sub)}`);saleItems.push({id:p.id,name:p.name,qty:item.qty,price,subtotal:sub})});
  const text=`Hola, quiero hacer este pedido en Distribuidora Meraki y Ka!wa.%0A%0A👤 Nombre: ${encodeURIComponent(name)}%0A📱 Teléfono: ${encodeURIComponent(phone)}%0A📍 Lugar: ${encodeURIComponent(address||'Por confirmar')}%0A%0A${encodeURIComponent(lines.join('\n'))}%0A%0A💰 Total estimado: ${encodeURIComponent(money(total))}`;
- const {error:saleError}=await sb.from('sales').insert({customer_name:name,customer_phone:phone,delivery_address:address||'',items:saleItems,total});if(saleError)console.error('No se pudo registrar la venta:',saleError);
+ const {error:saleError}=await sb.from('sales').insert({customer_name:name,customer_phone:phone,delivery_address:address||'',items:saleItems,total});
+ if(saleError)console.error('No se pudo registrar la venta:',saleError);
  window.open(`${wa()}?text=${text}`,'_blank');cart=[];renderCart();closeCustomer()
 }
-function openLogin(){document.getElementById('loginModal').classList.add('show')}function closeLogin(){document.getElementById('loginModal').classList.remove('show')}
-async function login(){const email=document.getElementById('loginEmail').value.trim(),password=document.getElementById('loginPassword').value,msg=document.getElementById('loginMsg');msg.textContent='Entrando...';const {error}=await sb.auth.signInWithPassword({email,password});if(error){msg.textContent='❌ '+error.message;return}closeLogin();openAdmin()}
-async function openAdmin(){const {data}=await sb.auth.getSession();if(!data.session){openLogin();return}if((data.session.user.email||'').toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await sb.auth.signOut();return alert('Este usuario no es el administrador.')}document.getElementById('adminModal').classList.add('show');renderAdminList();await loadDailySales()}
+
+function openLogin(){document.getElementById('loginModal').classList.add('show')}
+function closeLogin(){document.getElementById('loginModal').classList.remove('show')}
+async function login(){
+ const email=document.getElementById('loginEmail').value.trim(),password=document.getElementById('loginPassword').value,msg=document.getElementById('loginMsg');
+ msg.textContent='Entrando...';
+ const {error}=await sb.auth.signInWithPassword({email,password});
+ if(error){msg.textContent='❌ '+error.message;return}
+ closeLogin();openAdmin()
+}
+async function openAdmin(){
+ const {data}=await sb.auth.getSession();
+ if(!data.session){openLogin();return}
+ if((data.session.user.email||'').toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await sb.auth.signOut();return alert('Este usuario no es el administrador.')}
+ document.getElementById('adminModal').classList.add('show');renderAdminList();await loadDailySales()
+}
 function closeAdmin(){document.getElementById('adminModal').classList.remove('show')}
 function resetForm(){document.getElementById('productForm').reset();document.getElementById('editId').value=''}
+
 document.getElementById('productForm').addEventListener('submit',async e=>{
- e.preventDefault();const id=document.getElementById('editId').value,name=document.getElementById('pName').value.trim(),category=document.getElementById('pCategory').value.trim()||'General',price=Number(document.getElementById('pPrice').value),description=document.getElementById('pDescription').value.trim(),emoji=document.getElementById('pEmoji').value.trim()||'🛍️';let image_url='';
- const file=document.getElementById('pImage').files[0];if(file)image_url=await fileToDataURL(file);if(!name)return alert('Escribe el nombre.');
- if(id){const old=products.find(p=>String(p.id)===String(id));if(!image_url)image_url=productImage(old);const {error}=await sb.from('products').update({name,category,price,description,emoji,image_url}).eq('id',id);if(error)return alert('Error al actualizar: '+error.message)}
- else{const {error}=await sb.from('products').insert({name,category,price,description,emoji,image_url});if(error)return alert('Error al crear: '+error.message)}
+ e.preventDefault();
+ const id=document.getElementById('editId').value,name=document.getElementById('pName').value.trim(),category=document.getElementById('pCategory').value.trim()||'General',price=Number(document.getElementById('pPrice').value),description=document.getElementById('pDescription').value.trim(),emoji=document.getElementById('pEmoji').value.trim()||'🛍️';
+ let image_url='';
+ try{
+  const file=document.getElementById('pImage').files[0];if(file)image_url=await fileToDataURL(file);
+ }catch(err){return alert('No se pudo procesar la imagen: '+(err.message||err))}
+ if(!name)return alert('Escribe el nombre.');
+ if(id){
+  const old=products.find(p=>String(p.id)===String(id));if(!image_url)image_url=productImage(old);
+  const {error}=await sb.from('products').update({name,category,price,description,emoji,image_url}).eq('id',id);if(error)return alert('Error al actualizar: '+error.message)
+ }else{
+  const {error}=await sb.from('products').insert({name,category,price,description,emoji,image_url});if(error)return alert('Error al crear: '+error.message)
+ }
  resetForm();await loadProducts();renderAdminList();alert('Producto guardado online.')
 });
 function editProduct(id){const p=products.find(x=>Number(x.id)===Number(id));if(!p)return;document.getElementById('editId').value=p.id;document.getElementById('pName').value=p.name||'';document.getElementById('pCategory').value=productCategory(p);document.getElementById('pPrice').value=p.price||0;document.getElementById('pEmoji').value=productEmoji(p);document.getElementById('pDescription').value=productDescription(p);document.getElementById('pImage').value='';document.getElementById('productForm').scrollIntoView({behavior:'smooth'})}
 async function deleteProduct(id){if(!confirm('¿Borrar este producto?'))return;const {error}=await sb.from('products').delete().eq('id',id);if(error)return alert('Error al borrar: '+error.message);await loadProducts();renderAdminList()}
-function renderAdminList(){const el=document.getElementById('adminList');if(!products.length){el.innerHTML='<p class="muted">No hay productos.</p>';return}el.innerHTML=products.map(p=>{const img=productImage(p);return `<div class="admin-row">${img?`<img src="${esc(img)}" alt="">`:`<div class="thumb">${esc(productEmoji(p))}</div>`}<div><b>${esc(p.name)}</b><div class="muted">${esc(productCategory(p))} · ${money(p.price)}</div></div><div class="admin-buttons"><button class="btn" onclick="editProduct(${Number(p.id)})">✏️ Editar</button><button class="btn danger" onclick="deleteProduct(${Number(p.id)})">🗑️ Borrar</button></div></div>`}).join('')}
+function renderAdminList(){
+ const el=document.getElementById('adminList');
+ if(!products.length){el.innerHTML='<p class="muted">No hay productos.</p>';return}
+ el.innerHTML=products.map(p=>{const img=productImage(p);return `<div class="admin-row">${img?`<img src="${esc(img)}" alt="">`:`<div class="thumb">${esc(productEmoji(p))}</div>`}<div><b>${esc(p.name)}</b><div class="muted">${esc(productCategory(p))} · ${money(p.price)}</div></div><div class="admin-buttons"><button class="btn" onclick="editProduct(${Number(p.id)})">✏️ Editar</button><button class="btn danger" onclick="deleteProduct(${Number(p.id)})">🗑️ Borrar</button></div></div>`}).join('')
+}
 
-/* ============================================================
-   CARGA MASIVA CORREGIDA
-   Guarda un producto por petición y comprime cada imagen.
-   ============================================================ */
-function compressImage(file){
- return new Promise((resolve,reject)=>{
-  const reader=new FileReader();
-  reader.onload=()=>{
-   const img=new Image();
-   img.onload=()=>{
-    const MAX_SIZE=800;
-    let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
-    if(!w||!h)return reject(new Error('Imagen sin dimensiones válidas.'));
-    if(w>MAX_SIZE||h>MAX_SIZE){
-     if(w>=h){h=Math.round(h*MAX_SIZE/w);w=MAX_SIZE}
-     else{w=Math.round(w*MAX_SIZE/h);h=MAX_SIZE}
-    }
-    const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
-    const ctx=canvas.getContext('2d',{alpha:false});
-    if(!ctx)return reject(new Error('No se pudo preparar la imagen.'));
-    ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
-    canvas.toBlob(blob=>{
-     if(!blob)return reject(new Error('No se pudo comprimir la imagen.'));
-     const r=new FileReader();
-     r.onload=()=>resolve(r.result);
-     r.onerror=()=>reject(new Error('No se pudo leer la imagen comprimida.'));
-     r.readAsDataURL(blob);
-    },'image/jpeg',0.55);
-   };
+/* =========================
+   IMÁGENES ROBUSTAS
+   No usa FileReader para leer las fotos originales.
+   Esto evita el fallo al seleccionar muchas imágenes en Android.
+   ========================= */
+async function blobToDataURL(blob){
+ const buffer=await blob.arrayBuffer();
+ let binary='';
+ const bytes=new Uint8Array(buffer);
+ const step=0x8000;
+ for(let i=0;i<bytes.length;i+=step){
+  binary+=String.fromCharCode(...bytes.subarray(i,i+step));
+ }
+ return 'data:'+(blob.type||'image/jpeg')+';base64,'+btoa(binary);
+}
+
+async function imageElementFromFile(file){
+ const url=URL.createObjectURL(file);
+ try{
+  const img=new Image();
+  img.decoding='async';
+  await new Promise((resolve,reject)=>{
+   img.onload=resolve;
    img.onerror=()=>reject(new Error('No se pudo leer la imagen.'));
-   img.src=reader.result;
-  };
-  reader.onerror=()=>reject(new Error('No se pudo leer el archivo.'));
-  reader.readAsDataURL(file);
+   img.src=url;
+  });
+  return img;
+ }finally{
+  URL.revokeObjectURL(url);
+ }
+}
+
+async function compressImage(file){
+ if(!file)throw new Error('No se recibió la imagen.');
+ if(!file.type || !file.type.startsWith('image/'))throw new Error('El archivo no es una imagen.');
+ if(file.size===0)throw new Error('El archivo está vacío.');
+
+ const img=await imageElementFromFile(file);
+ const MAX_SIZE=800;
+ let w=img.naturalWidth||img.width,h=img.naturalHeight||img.height;
+ if(!w||!h)throw new Error('Imagen sin dimensiones válidas.');
+ if(w>MAX_SIZE||h>MAX_SIZE){
+  if(w>=h){h=Math.max(1,Math.round(h*MAX_SIZE/w));w=MAX_SIZE}
+  else{w=Math.max(1,Math.round(w*MAX_SIZE/h));h=MAX_SIZE}
+ }
+ const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+ const ctx=canvas.getContext('2d',{alpha:false});
+ if(!ctx)throw new Error('No se pudo preparar la imagen.');
+ ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);
+ const blob=await new Promise((resolve,reject)=>{
+  canvas.toBlob(b=>b?resolve(b):reject(new Error('No se pudo comprimir la imagen.')),'image/jpeg',0.55);
  });
+ return await blobToDataURL(blob);
 }
 const fileToDataURL=compressImage;
 
 function prepareBulkProducts(){
  const input=document.getElementById('bulkImages'),container=document.getElementById('bulkFiles'),saveBtn=document.getElementById('bulkSaveBtn'),progress=document.getElementById('bulkProgress');
- bulkFiles=Array.from(input.files||[]);container.innerHTML='';
- if(!bulkFiles.length){saveBtn.classList.add('hidden');progress.classList.remove('show');return}
+ bulkFiles=Array.from(input.files||[]);
+ container.innerHTML='';
+ progress.classList.remove('show');
+ if(!bulkFiles.length){saveBtn.classList.add('hidden');return}
  bulkFiles.forEach((file,index)=>{
   const item=document.createElement('div');item.className='bulk-item';
   item.innerHTML=`<div class="bulk-top"><div class="bulk-preview"><img id="bulk-preview-${index}" alt=""></div><div class="bulk-fields"><input class="field" data-index="${index}" data-field="name" placeholder="Nombre del producto *"><input class="field" data-index="${index}" data-field="category" value="General" placeholder="Categoría"><input class="field" data-index="${index}" data-field="price" type="number" min="0" placeholder="Precio ₡"><textarea class="field" data-index="${index}" data-field="description" placeholder="Descripción"></textarea></div></div><div class="bulk-status" id="bulk-status-${index}">${esc(file.name)} · Listo para guardar</div>`;
   container.appendChild(item);
-  const reader=new FileReader();reader.onload=()=>{const preview=document.getElementById(`bulk-preview-${index}`);if(preview)preview.src=reader.result};reader.readAsDataURL(file);
+  // Previsualización con URL.createObjectURL: no abre 18 FileReader simultáneos.
+  const preview=document.getElementById(`bulk-preview-${index}`);
+  if(preview){
+   const objectUrl=URL.createObjectURL(file);
+   preview.src=objectUrl;
+   preview.onload=()=>URL.revokeObjectURL(objectUrl);
+   preview.onerror=()=>{URL.revokeObjectURL(objectUrl);preview.alt='Imagen no disponible'};
+  }
  });
- saveBtn.classList.remove('hidden');saveBtn.disabled=false;progress.classList.remove('show');
+ saveBtn.classList.remove('hidden');saveBtn.disabled=false;
 }
 
 async function saveBulkProducts(){
@@ -243,7 +319,7 @@ async function saveBulkProducts(){
     const name=get('name'),category=get('category')||'General',price=Number(get('price')||0),description=get('description');
     if(!name)throw new Error('Falta el nombre del producto.');
     if(!Number.isFinite(price)||price<0)throw new Error('El precio no es válido.');
-    if(status)status.textContent='⏳ Comprimiendo imagen...';
+    if(status)status.textContent='⏳ Preparando imagen...';
     progress.classList.add('show');progress.textContent=`Preparando producto ${i+1} de ${bulkFiles.length}...`;
     const image_url=await compressImage(bulkFiles[i]);
     if(status)status.textContent='⏳ Guardando en la tienda...';
@@ -256,7 +332,7 @@ async function saveBulkProducts(){
    }
    progress.classList.add('show');
    progress.textContent=`Procesados ${i+1} de ${bulkFiles.length} · ✅ ${saved} guardados · ❌ ${failed} con error`;
-   await new Promise(resolve=>setTimeout(resolve,150));
+   await new Promise(resolve=>setTimeout(resolve,120));
   }
  }catch(error){
   console.error('Error general:',error);progress.classList.add('show');progress.textContent='❌ Error general: '+errorText(error);
@@ -292,7 +368,7 @@ async function loadProducts(){
  products=data||[];renderCategories();renderProducts();renderCart();if(document.getElementById('adminModal').classList.contains('show'))renderAdminList()
 }
 loadProducts();
-if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js').catch(()=>{})}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js?v=5').catch(()=>{})}
 </script>
 </body>
 </html>
